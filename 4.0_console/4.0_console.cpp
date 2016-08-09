@@ -1,31 +1,11 @@
-// 4.0_console.cpp : Defines the entry point for the console application.
+﻿// 4.0_console.cpp : Defines the entry point for the console application.
 //
 
-
-
 #include "stdafx.h"
-#include <string>
-#include <windows.h>
-#include <clocale>
+#include "monitor.h"
 #include <iostream>
-#include <fstream>
-#include <sstream>
-
-#ifdef UNICODE | _UNICODE
-typedef std::wstring tstring;
-#else
-typedef std::string tstring;
-#endif
 
 using namespace std;
-
-string fn = "productivity_record.bin";
-typedef enum
-{
-	NOT_PRODUCTIVE,
-	PRODUCTIVE,
-	UNDECIDED
-}productivity;
 
 tstring removeSpaces(const TCHAR original[], size_t max_length)
 {
@@ -38,8 +18,6 @@ tstring removeSpaces(const TCHAR original[], size_t max_length)
 	return stringBuffer;
 }
 
-
-
 tstring getTitle(const tstring &curr_line)
 {
 	tstring title;
@@ -51,63 +29,53 @@ tstring getTitle(const tstring &curr_line)
 	}
 	return title;
 }
-productivity getProductivity(wstring searchTerm)
+string translate(monitor::productivity productivityCode)
 {
-	wfstream data(fn, ios::in | ios::binary);
-	tstring curr_line;
-	productivity pr(UNDECIDED);
-	if (data.good())
+	switch (productivityCode)
 	{
-		while (getline(data, curr_line)) //keep reading new lines until searchterm is found
-		{
-			wcout << _T("curr line = ") << curr_line << endl;
-			if (getTitle(curr_line) == searchTerm) //found
-			{
-				cout << "found, value = ";
-				wcout << curr_line[curr_line.size() - 1] << endl; 
-				switch (curr_line[curr_line.size() - 1])
-				{
-				case _T('0'):
-					pr = NOT_PRODUCTIVE;
-					break;
-				case _T('1'):
-					pr = PRODUCTIVE;
-					break;
-				default:
-					pr = UNDECIDED;
-					break;
-				}
-				return pr; 
-			}
-		}
+	case monitor::productivity::NOT_PRODUCTIVE:
+		return "NOT PRODUCTIVE";
+	case monitor::productivity::PRODUCTIVE:
+		return "PRODUCTIVE";
+	case monitor::productivity::NOT_FOUND:
+		return "NOT FOUND";
+	case monitor::productivity::UNDECIDED:
+		return "UNDECIDED";
+	default:
+		return "INVALID";
 	}
-
-	cout << "not found, undecided = ";
-	cout << UNDECIDED << endl;
-	return UNDECIDED;
 }
-productivity analyze(const TCHAR window_title[], size_t title_max_length)
+
+tstring toString(TCHAR titleArray[], size_t max_length)
 {
-	//remove all spaces
-	return NOT_PRODUCTIVE;
+	tstring titleStr;
+	for (size_t i = 0; titleArray[i] != _T('\0') && i < max_length; i++)
+		titleStr.push_back(titleArray[i]);
+	return titleStr;
 }
-
-
-void WriteUnicodetoFile(const char* myFile, tstring& ws) {
-	std::ofstream outFile(myFile, std::ios::app |::ios::out | std::ios::binary);
-	outFile.write((char *)ws.c_str(), ws.length() * sizeof(TCHAR));
-	outFile.close();
-}
-
 int main(int argc, _TCHAR* argv[])
 {
-	TCHAR window_title[256]; //tchar automatically defined to be wchar due to macros. always use tchar consistently
-	for (size_t i = 0; i < 256; i++) //initialization
-		window_title[i] = _T('\0');
-	while(1)
+	string fn = "save.txt";
+	monitor monitorObj(fn);
+	TCHAR title[256];
+	int userResponse;
+	while (1)
 	{
-		
-		Sleep(500);
+		Sleep(5);
+		GetWindowText(GetForegroundWindow(), title, 256);
+		tstring window_title = toString(title, 256);
+		monitor::productivity prod = monitorObj.lookUp(window_title);
+		if (prod == monitor::productivity::NOT_FOUND)
+		{
+			userResponse = MessageBox(NULL, (_T("Is ") + window_title + _T(" productive?")).c_str(), _T("4.0 Productivity Monitor"), MB_YESNO);
+			if (userResponse == IDYES)
+				monitorObj.save(window_title, monitor::productivity::PRODUCTIVE);
+			else
+				monitorObj.save(window_title, monitor::productivity::NOT_PRODUCTIVE);
+		}
+		else
+			cout << translate(prod) << endl;
 	}
-	system("PAUSE");
+
+	//find a way to get destructor to be called upon close
 }
