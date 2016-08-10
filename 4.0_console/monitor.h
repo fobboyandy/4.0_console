@@ -28,6 +28,7 @@ public:
 	monitor(string saveFile);
 	productivity lookUp(tstring window_title);
 	void save(tstring window_title, productivity p);
+	productivity analyze(tstring window_title);
 	~monitor();
 private:
 	struct dataStorage_t
@@ -42,5 +43,6 @@ private:
 		productivity getProductivity(TCHAR pValueChar);
 		void save(tstring window_title, monitor::productivity pValue);
 	}dataStorage;
+	productivity predict(tstring window_title);
 	vector<pair<tstring, productivity>> newData;
 };

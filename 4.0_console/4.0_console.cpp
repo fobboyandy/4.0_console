@@ -45,7 +45,22 @@ string translate(monitor::productivity productivityCode)
 		return "INVALID";
 	}
 }
+//tells whether google chrome is the current window using substring
+bool isGoogleChrome(tstring window_title)
+{
+	tstring criteria = _T("- Google Chrome");
+	if (window_title.find(criteria) != std::string::npos)
+		return true;
+	return false;
+}
+monitor::productivity predict(const tstring &window_title);
 
+monitor::productivity analyze(const tstring &window_title)
+{
+	if (isGoogleChrome)
+		return predict(window_title);
+
+}
 tstring toString(TCHAR titleArray[], size_t max_length)
 {
 	tstring titleStr;
@@ -61,10 +76,10 @@ int main(int argc, _TCHAR* argv[])
 	int userResponse;
 	while (1)
 	{
-		Sleep(5);
+		Sleep(500);
 		GetWindowText(GetForegroundWindow(), title, 256);
-		tstring window_title = toString(title, 256);
-		monitor::productivity prod = monitorObj.lookUp(window_title);
+		tstring window_title = toString(title, 256);	
+		/*monitor::productivity prod = monitorObj.lookUp(window_title);
 		if (prod == monitor::productivity::NOT_FOUND)
 		{
 			userResponse = MessageBox(NULL, (_T("Is ") + window_title + _T(" productive?")).c_str(), _T("4.0 Productivity Monitor"), MB_YESNO);
@@ -74,7 +89,8 @@ int main(int argc, _TCHAR* argv[])
 				monitorObj.save(window_title, monitor::productivity::NOT_PRODUCTIVE);
 		}
 		else
-			cout << translate(prod) << endl;
+			cout << translate(prod) << endl;*/
+		
 	}
 
 	//find a way to get destructor to be called upon close
