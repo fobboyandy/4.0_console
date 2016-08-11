@@ -3,6 +3,7 @@
 
 monitor::monitor(string saveFile)
 {
+	browsers = {_T("- Google Chrome"), _T("- Microsoft Edge"), _T("- Internet Explorer"), _T("- Mozilla Firefox")};
 	dataStorage.saveFile = saveFile;
 	dataStorage.data.open(saveFile, ios::in);
 	if(dataStorage.data)
@@ -60,7 +61,7 @@ void monitor::dataStorage_t::save(tstring window_title, monitor::productivity pV
 	}
 }
 
-monitor::productivity monitor::lookUp(tstring window_title)
+monitor::productivity monitor::lookUp(const tstring &window_title)
 {
 	//go through stored data
 	for (size_t i = 0; i < dataStorage.dataMem.size(); i++)
@@ -93,7 +94,36 @@ monitor::productivity monitor::dataStorage_t::getProductivity(TCHAR pValueChar)
 	return UNDECIDED;
 }
 
-void monitor::save(tstring window_title, productivity p)
+void monitor::save(const tstring &window_title, const monitor::productivity &pValue)
 {
-	newData.push_back(pair<tstring, monitor::productivity>(window_title, p));
+	newData.push_back(pair<tstring, monitor::productivity>(window_title, pValue));
+}
+
+monitor::productivity monitor::analyze(const tstring &window_title)
+{
+	//first check memory then check if its a browser, if yes make prediction and update memory. if not then 
+	monitor::productivity p = lookUp(window_title);
+	if (p != monitor::productivity::NOT_FOUND)
+		return p;
+
+	bool isBrowser = false;
+	for (size_t i = 0; i < browsers.size(); i++)
+	{
+		if (window_title.find(browsers[i]))
+			isBrowser = true;
+	}
+	if (isBrowser)
+	{
+		//use searches to make prediction and use prediction to update pages
+	}
+	else
+	{
+		//look in memory
+	}
+	return p;
+}
+
+monitor::productivity monitor::predict(tstring page_name)
+{
+	return monitor::productivity();
 }

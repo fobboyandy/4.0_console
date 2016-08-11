@@ -26,9 +26,8 @@ public:
 		NOT_FOUND = 3
 	};
 	monitor(string saveFile);
-	productivity lookUp(tstring window_title);
-	void save(tstring window_title, productivity p);
-	productivity analyze(tstring window_title);
+	void save(const tstring &window_title, const monitor::productivity &pValue);
+	productivity analyze(const tstring &window_title);
 	~monitor();
 private:
 	struct dataStorage_t
@@ -43,6 +42,9 @@ private:
 		productivity getProductivity(TCHAR pValueChar);
 		void save(tstring window_title, monitor::productivity pValue);
 	}dataStorage;
-	productivity predict(tstring window_title);
+
+	productivity lookUp(const tstring &window_title);
+	productivity predict(tstring page_name);
 	vector<pair<tstring, productivity>> newData;
+	vector<tstring> browsers;
 };

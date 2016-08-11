@@ -3,6 +3,9 @@
 
 #include "stdafx.h"
 #include "monitor.h"
+#include "wikipedia_functions.h"
+#include <unordered_map>
+#include "curl.h"
 #include <iostream>
 
 using namespace std;
@@ -53,14 +56,7 @@ bool isGoogleChrome(tstring window_title)
 		return true;
 	return false;
 }
-monitor::productivity predict(const tstring &window_title);
 
-monitor::productivity analyze(const tstring &window_title)
-{
-	if (isGoogleChrome)
-		return predict(window_title);
-
-}
 tstring toString(TCHAR titleArray[], size_t max_length)
 {
 	tstring titleStr;
@@ -70,28 +66,51 @@ tstring toString(TCHAR titleArray[], size_t max_length)
 }
 int main(int argc, _TCHAR* argv[])
 {
-	string fn = "save.txt";
-	monitor monitorObj(fn);
-	TCHAR title[256];
-	int userResponse;
-	while (1)
-	{
-		Sleep(500);
-		GetWindowText(GetForegroundWindow(), title, 256);
-		tstring window_title = toString(title, 256);	
-		/*monitor::productivity prod = monitorObj.lookUp(window_title);
-		if (prod == monitor::productivity::NOT_FOUND)
-		{
-			userResponse = MessageBox(NULL, (_T("Is ") + window_title + _T(" productive?")).c_str(), _T("4.0 Productivity Monitor"), MB_YESNO);
-			if (userResponse == IDYES)
-				monitorObj.save(window_title, monitor::productivity::PRODUCTIVE);
-			else
-				monitorObj.save(window_title, monitor::productivity::NOT_PRODUCTIVE);
-		}
-		else
-			cout << translate(prod) << endl;*/
-		
-	}
+	//string fn = "save.txt";
+	//monitor monitorObj(fn);
+	//TCHAR title[256];
 
+	//urlParse//
+	string validCharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=";
+	string searchTerm = "ece310+uiuc";
+	string url = "https://www.google.com/search?q=" + searchTerm;
+	fstream html(searchTerm+".txt", ios::out | ios::trunc); //open outputfile
+	string pageSource = wikipedia_functions::scrape(url); //scrape
+	html << pageSource; //output to file
+	bool searchValid = pageSource.find(" - did not match any documents.") == std::string::npos; 
+	vector<string> urlList;
+	//results found for search parameter
+	if (searchValid)
+	{
+		cout << "search valid" << endl;
+		size_t resultBegin = pageSource.find("<div class=\"sd\" id=\"resultStats\">"); //relevant results are within these bounds
+		size_t resultEnd = pageSource.find("<span class=\"csb\"");
+		size_t urlIdx = pageSource.find("http", resultBegin);
+		string currUrl;
+		while (urlIdx < resultEnd)
+		{
+			bool validChar = false;
+			for (size_t i = 0; i < validCharSet.size(); i++)
+				if (pageSource[urlIdx] == validCharSet[i])
+					validChar = true;
+			if (validChar)
+			{
+				currUrl.push_back(pageSource[urlIdx]);
+				urlIdx++;//increment urlIdx by 1 to check next character
+			}
+			else 
+			{
+				urlIdx = pageSource.find("http", urlIdx);//invalid character reached, jump to the next url
+				urlList.push_back(currUrl);
+				currUrl.clear();
+			}
+		}
+	}
+	//end urlParse//
+	for (size_t i = 0; i < urlList.size(); i++)
+		cout << urlList[i] << endl;
+
+	html.close();
+	system("pause");
 	//find a way to get destructor to be called upon close
 }
