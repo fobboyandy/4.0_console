@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "monitor.h"
-#include "wikipedia_functions.h"
+#include "curl_functions.h"
 #include <unordered_map>
 #include "curl.h"
 #include <iostream>
@@ -64,25 +64,24 @@ tstring toString(TCHAR titleArray[], size_t max_length)
 		titleStr.push_back(titleArray[i]);
 	return titleStr;
 }
-int main(int argc, _TCHAR* argv[])
-{
-	//string fn = "save.txt";
-	//monitor monitorObj(fn);
-	//TCHAR title[256];
 
-	//urlParse//
-	string validCharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=";
-	string searchTerm = "ece310+uiuc";
-	string url = "https://www.google.com/search?q=" + searchTerm;
-	fstream html(searchTerm+".txt", ios::out | ios::trunc); //open outputfile
-	string pageSource = wikipedia_functions::scrape(url); //scrape
-	html << pageSource; //output to file
-	bool searchValid = pageSource.find(" - did not match any documents.") == std::string::npos; 
+
+vector<string> googleSearch(string searchTerm, size_t depth)
+{
+	string validCharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$'()*,;=";//&+removed
+	size_t pageNum = 0;
+	for (size_t i = 0; i < searchTerm.size(); i++)
+		if (searchTerm[i] == ' ')
+			searchTerm[i] = '+';
+	vector<string> urlKeep;
+nextPage:
+	string url = "https://www.google.com/search?q=" + searchTerm + "&start=" + to_string(pageNum); //https://www.google.com/search?q=asdf&start=00
+	string pageSource = curl_functions::scrape(url);
+	bool searchValid = pageSource.find(" - did not match any documents.") == std::string::npos;
 	vector<string> urlList;
 	//results found for search parameter
 	if (searchValid)
 	{
-		cout << "search valid" << endl;
 		size_t resultBegin = pageSource.find("<div class=\"sd\" id=\"resultStats\">"); //relevant results are within these bounds
 		size_t resultEnd = pageSource.find("<span class=\"csb\"");
 		size_t urlIdx = pageSource.find("http", resultBegin);
@@ -98,7 +97,7 @@ int main(int argc, _TCHAR* argv[])
 				currUrl.push_back(pageSource[urlIdx]);
 				urlIdx++;//increment urlIdx by 1 to check next character
 			}
-			else 
+			else
 			{
 				urlIdx = pageSource.find("http", urlIdx);//invalid character reached, jump to the next url
 				urlList.push_back(currUrl);
@@ -108,9 +107,30 @@ int main(int argc, _TCHAR* argv[])
 	}
 	//end urlParse//
 	for (size_t i = 0; i < urlList.size(); i++)
-		cout << urlList[i] << endl;
+		if (urlList[i] != "https://www.youtube.com/watch" && urlList[i] != "http://webcache.googleusercontent.com/search" && urlList[i] != "http://www.google.com/aclk?sa=l" && urlList[i] != "http://www.google.com/aclk?sa=L" && urlList[i] != "https://" && urlList[i] != "https://www" && urlList[i] != "https://www.")
+			urlKeep.push_back(urlList[i]);
+	if (pageNum < depth) //get depth amount of pages of results
+	{
+		pageNum++;
+		goto nextPage;
+	}
 
-	html.close();
+	return urlKeep;
+}
+
+
+int main(int argc, _TCHAR* argv[]) 
+{
+	//string fn = "save.txt";
+	//monitor monitorObj(fn);
+	//TCHAR title[256];
+	string searchTerm;
+	search:
+	getline(cin, searchTerm);
+	vector<string> urlList = googleSearch(searchTerm, 6);
+	for (size_t i = 0; i < urlList.size(); i++)
+		cout << urlList[i] << endl;
+	goto search;
 	system("pause");
 	//find a way to get destructor to be called upon close
 }

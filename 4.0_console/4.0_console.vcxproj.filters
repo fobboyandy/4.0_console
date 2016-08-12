@@ -27,7 +27,7 @@
     <ClInclude Include="monitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wikipedia_functions.h">
+    <ClInclude Include="curl_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

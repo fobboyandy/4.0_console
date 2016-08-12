@@ -1,25 +1,23 @@
 #include "stdafx.h"
-#include "wikipedia_functions.h"
+#include "curl_functions.h"
 #include <unordered_map>
 using namespace std;
 
-unordered_map<string, bool> wikipedia_functions::filter = { { "the",false },{ "of",false },{ "an",false } ,{ "a",false } ,{ "as",false } ,{ "at",false } ,{ "but",false } ,{ "by",false } ,{ "in",false } ,{ "from",false } ,{ "off",false } ,{ "on",false } ,{ "than",false } ,{ "with",false },{ "to",false } };
+unordered_map<string, bool> curl_functions::filter = { { "the",false },{ "of",false },{ "an",false } ,{ "a",false } ,{ "as",false } ,{ "at",false } ,{ "but",false } ,{ "by",false } ,{ "in",false } ,{ "from",false } ,{ "off",false } ,{ "on",false } ,{ "than",false } ,{ "with",false },{ "to",false } };
 
-
-
-string wikipedia_functions::content;
-size_t wikipedia_functions::writeCallback(char* buf, size_t size, size_t nmemb, void* up)
+string curl_functions::content;
+size_t curl_functions::writeCallback(char* buf, size_t size, size_t nmemb, void* up)
 { //callback must have this declaration
   //buf is a pointer to the data that curl has for us
   //size*nmemb is the size of the buffer
 
 	for (size_t c = 0; c<size*nmemb; c++)
-		wikipedia_functions::content.push_back(buf[c]);
+		curl_functions::content.push_back(buf[c]);
 	return size*nmemb; //tell curl how many bytes we handled
 }
-string wikipedia_functions::scrape(string URL)
+string curl_functions::scrape(string URL)
 {
-	wikipedia_functions::content.clear(); //clears content before using
+	curl_functions::content.clear(); //clears content before using
 	CURL* curl; //our curl object
 
 	curl_global_init(CURL_GLOBAL_ALL); //pretty obvious
@@ -27,14 +25,14 @@ string wikipedia_functions::scrape(string URL)
 
 	curl_easy_setopt(curl, CURLOPT_URL, URL.c_str());
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &wikipedia_functions::writeCallback);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &curl_functions::writeCallback);
 	curl_easy_perform(curl);
 	curl_easy_cleanup(curl);
 	curl_global_cleanup();
-	return wikipedia_functions::content;
+	return curl_functions::content;
 }
 
-string wikipedia_functions::remove_tags(string html_source)
+string curl_functions::remove_tags(string html_source)
 {
 	string buffer; //contains the information with tags filtered out
 	bool push = true;
@@ -53,7 +51,7 @@ string wikipedia_functions::remove_tags(string html_source)
 	return buffer;
 }
 
-unordered_map<string, int> wikipedia_functions::word_sort(string html_content)
+unordered_map<string, int> curl_functions::word_sort(string html_content)
 {
 	unordered_map<string, int> frequency_dictionary;
 	string word;

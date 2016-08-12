@@ -8,7 +8,7 @@
 using namespace std;
 
 
-namespace wikipedia_functions
+namespace curl_functions
 {
 	extern string content; //will hold the url's html content
 	extern unordered_map<string, bool> filter;
