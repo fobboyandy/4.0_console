@@ -82,3 +82,55 @@ unordered_map<string, int> curl_functions::word_sort(string html_content)
 
 	return sorted_list;
 }
+
+vector<string> curl_functions::googleSearch(string searchTerm, size_t depth)
+{
+	string validCharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$'()*,;=";//&+removed
+	size_t pageNum = 0;
+	for (size_t i = 0; i < searchTerm.size(); i++)
+		if (searchTerm[i] == ' ')
+			searchTerm[i] = '+';
+	vector<string> urlKeep;
+nextPage:
+	string url = "https://www.google.com/search?q=" + searchTerm + "&start=" + to_string(pageNum); //https://www.google.com/search?q=asdf&start=00
+	string pageSource = curl_functions::scrape(url);
+	bool searchValid = pageSource.find(" - did not match any documents.") == std::string::npos;
+	vector<string> urlList;
+	//results found for search parameter
+	if (searchValid)
+	{
+		size_t resultBegin = pageSource.find("<div class=\"sd\" id=\"resultStats\">"); //relevant results are within these bounds
+		size_t resultEnd = pageSource.find("<span class=\"csb\"");
+		size_t urlIdx = pageSource.find("http", resultBegin);
+		string currUrl;
+		while (urlIdx < resultEnd)
+		{
+			bool validChar = false;
+			for (size_t i = 0; i < validCharSet.size(); i++)
+				if (pageSource[urlIdx] == validCharSet[i])
+					validChar = true;
+			if (validChar)
+			{
+				currUrl.push_back(pageSource[urlIdx]);
+				urlIdx++;//increment urlIdx by 1 to check next character
+			}
+			else
+			{
+				urlIdx = pageSource.find("http", urlIdx);//invalid character reached, jump to the next url
+				urlList.push_back(currUrl);
+				currUrl.clear();
+			}
+		}
+	}
+	//end urlParse//
+	for (size_t i = 0; i < urlList.size(); i++)
+		if (urlList[i] != "https://www.youtube.com/watch" && urlList[i] != "http://webcache.googleusercontent.com/search" && urlList[i] != "http://www.google.com/aclk?sa=l" && urlList[i] != "http://www.google.com/aclk?sa=L" && urlList[i] != "https://" && urlList[i] != "https://www" && urlList[i] != "https://www.")
+			urlKeep.push_back(urlList[i]);
+	if (pageNum < depth) //get depth amount of pages of results
+	{
+		pageNum++;
+		goto nextPage;
+	}
+
+	return urlKeep;
+}

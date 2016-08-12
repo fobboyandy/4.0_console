@@ -15,7 +15,7 @@ monitor::monitor(string saveFile)
 			{
 				tstring pValueStr = dataStorage.readLine();
 				productivity p = dataStorage.getProductivity(pValueStr[0]);
-				pair<tstring, monitor::productivity> curr_pair(window_title, p);
+				pair<tstring, productivity> curr_pair(window_title, p);
 				dataStorage.dataMem.push_back(curr_pair);
 			}
 		}
@@ -50,7 +50,7 @@ tstring monitor::dataStorage_t::readLine()
 	return curr_line;
 }
 
-void monitor::dataStorage_t::save(tstring window_title, monitor::productivity pValue)
+void monitor::dataStorage_t::save(tstring window_title, productivity pValue)
 {
 	dataStorage_t::data.clear();
 	dataStorage_t::data.seekg(ios::beg);//reset before saving
@@ -61,7 +61,7 @@ void monitor::dataStorage_t::save(tstring window_title, monitor::productivity pV
 	}
 }
 
-monitor::productivity monitor::lookUp(const tstring &window_title)
+productivity monitor::lookUp(const tstring &window_title)
 {
 	//go through stored data
 	for (size_t i = 0; i < dataStorage.dataMem.size(); i++)
@@ -78,7 +78,7 @@ monitor::productivity monitor::lookUp(const tstring &window_title)
 	return NOT_FOUND; //if reach here then end of vector so not found
 }
 
-monitor::productivity monitor::dataStorage_t::getProductivity(TCHAR pValueChar)
+productivity monitor::dataStorage_t::getProductivity(TCHAR pValueChar)
 {
 	switch (pValueChar)
 	{
@@ -94,16 +94,16 @@ monitor::productivity monitor::dataStorage_t::getProductivity(TCHAR pValueChar)
 	return UNDECIDED;
 }
 
-void monitor::save(const tstring &window_title, const monitor::productivity &pValue)
+void monitor::save(const tstring &window_title, const productivity &pValue)
 {
-	newData.push_back(pair<tstring, monitor::productivity>(window_title, pValue));
+	newData.push_back(pair<tstring, productivity>(window_title, pValue));
 }
 
-monitor::productivity monitor::analyze(const tstring &window_title)
+productivity monitor::analyze(const tstring &window_title)
 {
 	//first check memory then check if its a browser, if yes make prediction and update memory. if not then 
-	monitor::productivity p = lookUp(window_title);
-	if (p != monitor::productivity::NOT_FOUND)
+	productivity p = lookUp(window_title);
+	if (p != productivity::NOT_FOUND)
 		return p;
 
 	bool isBrowser = false;
@@ -123,7 +123,7 @@ monitor::productivity monitor::analyze(const tstring &window_title)
 	return p;
 }
 
-monitor::productivity monitor::predict(tstring page_name)
+productivity monitor::predict(tstring page_name)
 {
-	return monitor::productivity();
+	return productivity();
 }

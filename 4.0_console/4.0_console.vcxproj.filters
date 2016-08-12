@@ -30,6 +30,12 @@
     <ClInclude Include="curl_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="productivityNetwork.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -41,7 +47,7 @@
     <ClCompile Include="monitor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wikipedia_functions.cpp">
+    <ClCompile Include="curl_functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -12,6 +12,7 @@ namespace curl_functions
 {
 	extern string content; //will hold the url's html content
 	extern unordered_map<string, bool> filter;
+	vector<string> googleSearch(string searchTerm, size_t depth);
 	size_t writeCallback(char* buf, size_t size, size_t nmemb, void* up);
 	string scrape(string topic);
 	string remove_tags(string html_source);

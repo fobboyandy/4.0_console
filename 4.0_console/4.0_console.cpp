@@ -4,9 +4,10 @@
 #include "stdafx.h"
 #include "monitor.h"
 #include "curl_functions.h"
+#include "productivityNetwork.h"
 #include <unordered_map>
 #include "curl.h"
-#include <iostream>
+#include "common.h"
 
 using namespace std;
 
@@ -32,17 +33,17 @@ tstring getTitle(const tstring &curr_line)
 	}
 	return title;
 }
-string translate(monitor::productivity productivityCode)
+string translate(productivity productivityCode)
 {
 	switch (productivityCode)
 	{
-	case monitor::productivity::NOT_PRODUCTIVE:
+	case productivity::NOT_PRODUCTIVE:
 		return "NOT PRODUCTIVE";
-	case monitor::productivity::PRODUCTIVE:
+	case productivity::PRODUCTIVE:
 		return "PRODUCTIVE";
-	case monitor::productivity::NOT_FOUND:
+	case productivity::NOT_FOUND:
 		return "NOT FOUND";
-	case monitor::productivity::UNDECIDED:
+	case productivity::UNDECIDED:
 		return "UNDECIDED";
 	default:
 		return "INVALID";
@@ -66,71 +67,43 @@ tstring toString(TCHAR titleArray[], size_t max_length)
 }
 
 
-vector<string> googleSearch(string searchTerm, size_t depth)
-{
-	string validCharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$'()*,;=";//&+removed
-	size_t pageNum = 0;
-	for (size_t i = 0; i < searchTerm.size(); i++)
-		if (searchTerm[i] == ' ')
-			searchTerm[i] = '+';
-	vector<string> urlKeep;
-nextPage:
-	string url = "https://www.google.com/search?q=" + searchTerm + "&start=" + to_string(pageNum); //https://www.google.com/search?q=asdf&start=00
-	string pageSource = curl_functions::scrape(url);
-	bool searchValid = pageSource.find(" - did not match any documents.") == std::string::npos;
-	vector<string> urlList;
-	//results found for search parameter
-	if (searchValid)
-	{
-		size_t resultBegin = pageSource.find("<div class=\"sd\" id=\"resultStats\">"); //relevant results are within these bounds
-		size_t resultEnd = pageSource.find("<span class=\"csb\"");
-		size_t urlIdx = pageSource.find("http", resultBegin);
-		string currUrl;
-		while (urlIdx < resultEnd)
-		{
-			bool validChar = false;
-			for (size_t i = 0; i < validCharSet.size(); i++)
-				if (pageSource[urlIdx] == validCharSet[i])
-					validChar = true;
-			if (validChar)
-			{
-				currUrl.push_back(pageSource[urlIdx]);
-				urlIdx++;//increment urlIdx by 1 to check next character
-			}
-			else
-			{
-				urlIdx = pageSource.find("http", urlIdx);//invalid character reached, jump to the next url
-				urlList.push_back(currUrl);
-				currUrl.clear();
-			}
-		}
-	}
-	//end urlParse//
-	for (size_t i = 0; i < urlList.size(); i++)
-		if (urlList[i] != "https://www.youtube.com/watch" && urlList[i] != "http://webcache.googleusercontent.com/search" && urlList[i] != "http://www.google.com/aclk?sa=l" && urlList[i] != "http://www.google.com/aclk?sa=L" && urlList[i] != "https://" && urlList[i] != "https://www" && urlList[i] != "https://www.")
-			urlKeep.push_back(urlList[i]);
-	if (pageNum < depth) //get depth amount of pages of results
-	{
-		pageNum++;
-		goto nextPage;
-	}
-
-	return urlKeep;
-}
-
 
 int main(int argc, _TCHAR* argv[]) 
 {
-	//string fn = "save.txt";
-	//monitor monitorObj(fn);
-	//TCHAR title[256];
-	string searchTerm;
-	search:
-	getline(cin, searchTerm);
-	vector<string> urlList = googleSearch(searchTerm, 6);
-	for (size_t i = 0; i < urlList.size(); i++)
-		cout << urlList[i] << endl;
-	goto search;
+	//string searchTerm;
+	//search:
+	//getline(cin, searchTerm);
+	//vector<string> urlList = googleSearch(searchTerm, 6);
+	//for (size_t i = 0; i < urlList.size(); i++)
+	//	cout << urlList[i] << endl;
+	//goto search;
+
+
+	vertex v1("vertex1");
+	vertex v2("vertex2");
+	vertex v3("vertex3");
+	vertex v4("vertex4");
+	vertex vA("vertexA");
+
+	v1.connect(&v2);
+	v1.connect(&v3);
+	v1.connect(&v4);
+	v1.connect(&vA);
+
+	v1.getNeighbors();
+	v2.getNeighbors();
+	v3.getNeighbors();
+	v4.getNeighbors();
+	vA.getNeighbors();
+	cout << endl;
+	v1.disconnect(&v2);
+	v1.getNeighbors();
+	v2.getNeighbors();
+	v3.getNeighbors();
+	v4.getNeighbors();
+	vA.getNeighbors();
+
+
 	system("pause");
 	//find a way to get destructor to be called upon close
 }

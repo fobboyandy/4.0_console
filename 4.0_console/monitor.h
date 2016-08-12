@@ -6,6 +6,7 @@
 #include <string>
 #include <TCHAR.h>
 #include <vector>
+#include "common.h"
 
 using namespace std;
 
@@ -18,15 +19,8 @@ typedef  string tstring;
 class monitor
 {
 public:
-	enum productivity
-	{
-		PRODUCTIVE = 0,
-		NOT_PRODUCTIVE = 1,
-		UNDECIDED = 2,
-		NOT_FOUND = 3
-	};
 	monitor(string saveFile);
-	void save(const tstring &window_title, const monitor::productivity &pValue);
+	void save(const tstring &window_title, const productivity &pValue);
 	productivity analyze(const tstring &window_title);
 	~monitor();
 private:
@@ -40,7 +34,7 @@ private:
 		//functions
 		tstring readLine();
 		productivity getProductivity(TCHAR pValueChar);
-		void save(tstring window_title, monitor::productivity pValue);
+		void save(tstring window_title, productivity pValue);
 	}dataStorage;
 
 	productivity lookUp(const tstring &window_title);
