@@ -1,5 +1,9 @@
 #pragma once
 #include <iostream>
+#include "curl_functions.h"
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 enum productivity
 {
