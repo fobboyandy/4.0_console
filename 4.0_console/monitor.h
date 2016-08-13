@@ -1,20 +1,9 @@
 #pragma once
 
 #include "stdafx.h"
-#include <windows.h>
-#include <fstream>
-#include <string>
-#include <TCHAR.h>
-#include <vector>
 #include "common.h"
 
 using namespace std;
-
-#if defined(UNICODE) || defined(_UNICODE)
-typedef wstring tstring;
-#else
-typedef  string tstring;
-#endif // UNICODE | _UNICODE
 
 class monitor
 {

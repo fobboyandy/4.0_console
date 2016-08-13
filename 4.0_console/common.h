@@ -1,9 +1,15 @@
 #pragma once
-#include <iostream>
-#include "curl_functions.h"
 #include <string>
-#include <unordered_map>
 #include <vector>
+#include <unordered_map>
+#include <iostream>
+#include <fstream>
+using namespace std;
+#if defined(UNICODE) || defined(_UNICODE)
+typedef wstring tstring;
+#else
+typedef  string tstring;
+#endif // UNICODE | _UNICODE
 
 enum productivity
 {
