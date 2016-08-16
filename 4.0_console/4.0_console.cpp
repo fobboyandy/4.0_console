@@ -66,19 +66,34 @@ tstring toString(TCHAR titleArray[], size_t max_length)
 
 int main(int argc, _TCHAR* argv[]) 
 {
-	productivityNetwork pnetwork;
+	productivityNetwork pn;
+	string searchTerm;
 
-	pnetwork.getProductivity("references for c++");
-	pnetwork.getProductivity("c++ references");
-
-	pnetwork.getNeighbors("references for c++");
-	cout << endl << endl << endl;
-	pnetwork.getNeighbors("c++ references");
-
-
+search:
+	getline(cin,searchTerm);
+	productivity p = pn.getProductivity(searchTerm, 1);
+	int response;
+	if (p == UNDECIDED)
+	{
+		cout << searchTerm << " is currently undetermined." << endl;
+		response = MessageBox(NULL, _T("Is it productive?"), L"Prompt", MB_YESNO);
+		if (response == IDYES)
+		{
+			cout << "You said \"" << searchTerm << "\" is productive." << endl;
+			pn.setProductivity(searchTerm, PRODUCTIVE);
+		}
+		else
+		{
+			cout << "You said \"" << searchTerm << "\" is not productive." << endl;
+			pn.setProductivity(searchTerm, NOT_PRODUCTIVE);
+		}
+	}
+	else
+		cout << searchTerm << " is " << translate(p) << "." << endl;
+	cout << endl << endl;
+	goto
+		search;
 	
-	cout << endl << endl << endl;
-
-	system("pause");
+	
 	//find a way to get destructor to be called upon close
 }
